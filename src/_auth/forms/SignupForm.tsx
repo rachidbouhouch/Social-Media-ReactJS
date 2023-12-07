@@ -5,7 +5,6 @@ import { Link } from "react-router-dom"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -31,10 +30,10 @@ const SignupForm = () => {
   })
  
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof SignupFormValidation>) {
+  async function onSubmit(values: z.infer<typeof SignupFormValidation>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values)
+    //const users= await createUser(values);
   }
   return (
     <div>
