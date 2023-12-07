@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input"
 import { SignupFormValidation } from '@/lib/validation'
 import { z } from 'zod'
 import Loader from '@/components/shared/Loader'
+import { createUserAccount } from '@/lib/appwrite/api'
  
 
 const SignupForm = () => {
@@ -33,7 +34,8 @@ const SignupForm = () => {
   async function onSubmit(values: z.infer<typeof SignupFormValidation>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    //const users= await createUser(values);
+    const users= await createUserAccount(values);
+    console.log(users)
   }
   return (
     <div>
