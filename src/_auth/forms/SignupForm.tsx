@@ -14,11 +14,15 @@ import { Input } from "@/components/ui/input"
 import { SignupFormValidation } from '@/lib/validation'
 import { z } from 'zod'
 import Loader from '@/components/shared/Loader'
-import { createUserAccount } from '@/lib/appwrite/api'
+import { useToast } from "@/components/ui/use-toast"
+import { useCreateUserAccount } from '@/lib/react-query/queriesAndMutations'
+
  
 
 const SignupForm = () => {
-  const isLoading=false;
+  const { toast } = useToast()
+  const {mutateAsync: createUserAccount, isLoading: isCreatingUser} = useCreateUserAccount()
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof SignupFormValidation>>({
     resolver: zodResolver(SignupFormValidation),
@@ -34,9 +38,15 @@ const SignupForm = () => {
   async function onSubmit(values: z.infer<typeof SignupFormValidation>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    const users= await createUserAccount(values);
-    console.log(users)
-  }
+    const user= await createUserAccount(values);
+    console.log(user)
+    if(!user){
+      return toast({
+        title: "Sign up failed. Please try again.",
+      })
+    }
+    //const session=await signInAccount()
+    }
   return (
     <div>
       <Form {...form}>
@@ -102,7 +112,7 @@ const SignupForm = () => {
       
         <Button type="submit" className='shad-button_primary mt-3'>
            {
-            isLoading?
+            isCreatingUser?
            ( <div className='flex-center gap-2'>
               <Loader/>Loading ...
             </div>)
