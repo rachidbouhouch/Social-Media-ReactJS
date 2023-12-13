@@ -1,5 +1,7 @@
-import { IUser } from '@/types/types'
+import { getCurrentAccount } from '@/lib/appwrite/api'
+import { IContextType, IUser } from '@/types/types'
 import {createContext,useContext,useState,useEffect} from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export const INITTIAL_USER = {
     id:'',
@@ -10,7 +12,7 @@ export const INITTIAL_USER = {
     bio:''
 }
 
-export INITIAL_STATE = {
+export const INITIAL_STATE = {
         user : INITTIAL_USER,
         isLoading: false,
         isAuthenticated: false,
@@ -18,16 +20,36 @@ export INITIAL_STATE = {
         setIsAuthenticated: ()=>{},
         checkAuthUser:async ()=> false as boolean
 }
-const AuthContext= createContext<IContextType>(INITTIAL_STATE)
+const AuthContext= createContext<IContextType>(INITIAL_STATE)
 
 
 const AuthProvider = ({children}: {children: React.ReactNode}) => {
     const [user,setUser]= useState<IUser>(INITTIAL_USER)
     const [isLoading,setIsLoading]= useState(false)
     const [isAuthenticated,setIsAuthenticated]= useState(false)
+    const navigate=useNavigate();
+
+    useEffect(()=>{
+        if(localStorage.getItem('cookieFallback')==='[]' || localStorage.getItem('cookieFallback')=== null) 
+        navigate('/sign-in')
+        checkAuthUser();
+    },[])
     const checkAuthUser= async ()=>  {
             try {
                 const currentAccount = await getCurrentAccount();
+                if(currentAccount){
+                    setUser({
+                        id:currentAccount.$id,
+                        username:currentAccount.username,
+                        name:currentAccount.name,
+                        email:currentAccount.email,
+                        imageUrl:currentAccount.imageUrl,
+                        bio:currentAccount.bio
+                    })
+                    setIsAuthenticated(true);
+                    return true
+                }
+                return false
             } catch (error) {
                 return false
             }
@@ -52,3 +74,5 @@ const AuthProvider = ({children}: {children: React.ReactNode}) => {
 }
 
 export default AuthContext
+
+
